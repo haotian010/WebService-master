@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>个人所得税计算器</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .result {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+
+        .btn-primary {
+            background-color: #4CAF50;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background-color: #45a049;
+        }
+
+        .alert-danger {
+            color: white;
+            background-color: #f44336;
+            padding: 10px;
+        }
+
+        body {
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h3 class="text-center mb-4">个人所得税计算器</h3>
+    <div class="mb-4">
+        <h5>规则</h5>
+        <ol>
+            <li>薪资小于等于5000元,则无需缴税</li>
+            <li>薪资大于5000元且小于等于9000,税率为3%</li>
+            <li>薪资大于9000元且小于等于15000,税率为5%</li>
+            <li>薪资大于15000,税率为10%</li>
+        </ol>
+    </div>
+    <input type="number" required class="form-control mb-3" id="salary" placeholder="请输入您的工资">
+    <button type="submit" class="btn btn-primary btn-block" id="btnsubmit">计算</button>
+    <div class="mt-4 text-center">
+        <p>您需要缴税 <span id="val" class="result">0</span> 元</p>
+        <div class="spinner-border text-success" role="status" id="loading" style="display:none;"></div>
+    </div>
+    <div class="alert alert-danger mt-4" id="error" style="display:none;"></div>
+</div>
+<script>
+        document.getElementById("btnsubmit").onclick = function () {
+            var salary = document.getElementById("salary").value;
+            if (salary <= 0) {
+                document.getElementById('error').innerText = "薪资不能为0或小于0";
+                document.getElementById('error').style.display = 'block';
+                return false;
+            }
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('error').style.display = 'none';
+            fetch('/calculateTax', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(salary),
+            }).then(response => response.json()).then(data => {
+                document.getElementById("val").innerText = data;
+                document.getElementById('loading').style.display = 'none';
+            }).catch((error) => {
+                console.error('Error:', error);
+                document.getElementById('error').innerText = "发生错误,请重试";
+                document.getElementById('error').style.display = 'block';
+                document.getElementById('loading').style.display = 'none';
+            });
+        };
+    </script>
+</body>
+</html>
